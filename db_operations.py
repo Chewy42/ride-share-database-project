@@ -32,8 +32,9 @@ class db_operations():
     # does not commit, returns results
     # best used for select queries with no parameters
     def select_query(self, query):
-        result = self.cursor.execute(query)
-        return result.fetchall()
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        return result
     
     # function to simply execute a DQL query with parameters
     # does not commit, returns results
@@ -48,7 +49,8 @@ class db_operations():
     # query with no parameters
     def single_record(self, query):
         self.cursor.execute(query)
-        return self.cursor.fetchone()[0]
+        result = self.cursor.fetchall() 
+        return result[0][0] if result else None
     
     # function to return the value of the first row's 
     # first attribute of some select query.
@@ -64,6 +66,11 @@ class db_operations():
         self.cursor.execute(query, dictionary)
         results = self.cursor.fetchall()
         return results[0]
+    
+    def multiple_records(self, query):
+        self.cursor.execute(query)
+        results = self.cursor.fetchall()
+        return results
     
     # function to return a single attribute for all records 
     # from some table.
@@ -87,25 +94,19 @@ class db_operations():
 
     def create_all_tables(self):
         # Check if the table 'users' exists, if not, create it
-        self.cursor.execute("SHOW TABLES LIKE 'users'")
+        self.cursor.execute("SHOW TABLES LIKE 'USER'")
         result = self.cursor.fetchone()
         if result is None:
             self.create_users_table()
 
         # Check if the table 'drivers' exists, if not, create it
-        self.cursor.execute("SHOW TABLES LIKE 'drivers'")
+        self.cursor.execute("SHOW TABLES LIKE 'DRIVER'")
         result = self.cursor.fetchone()
         if result is None:
             self.create_drivers_table()
 
-        # Check if the table 'riders' exists, if not, create it
-        self.cursor.execute("SHOW TABLES LIKE 'riders'")
-        result = self.cursor.fetchone()
-        if result is None:
-            self.create_riders_table()
-
         # Check if the table 'trip_log' exists, if not, create it
-        self.cursor.execute("SHOW TABLES LIKE 'trip_log'")
+        self.cursor.execute("SHOW TABLES LIKE 'TRIPLOGS'")
         result = self.cursor.fetchone()
         if result is None:
             self.create_trip_log_table()
@@ -113,13 +114,11 @@ class db_operations():
     # function that creates table songs in our database
     def create_users_table(self):
         query = '''
-        CREATE TABLE users(
-            user_id VARCHAR(22) NOT NULL PRIMARY KEY,
-            rider_id VARCHAR(22),
-            driver_id VARCHAR(22),
-            full_name VARCHAR(50),
-            username VARCHAR(50),
-            password VARCHAR(50)
+        CREATE TABLE USER (
+            user_id INT PRIMARY KEY,
+            email VARCHAR(100) UNIQUE NOT NULL,
+            full_name VARCHAR(100) NOT NULL,
+            is_driver BOOLEAN
         );
         '''
         self.cursor.execute(query)
@@ -127,34 +126,25 @@ class db_operations():
 
     def create_drivers_table(self):
         query = '''
-        CREATE TABLE drivers(
-            driver_id VARCHAR(22) NOT NULL PRIMARY KEY,
-            user_id VARCHAR(22),
-            rating FLOAT,
-            driver_mode BOOLEAN
-        );
-        '''
+        CREATE TABLE DRIVER (
+            user_id INT NOT NULL,
+            rating INT NOT NULL DEFAULT 0,
+            driver_mode BOOLEAN DEFAULT FALSE,
+            CONSTRAINT user_id FOREIGN KEY (user_id) REFERENCES USER(user_id)
+        );'''
         self.cursor.execute(query)
         print('Driver Table Created')
 
-    def create_riders_table(self):
-        query = '''
-        CREATE TABLE riders(
-            rider_id VARCHAR(22) NOT NULL PRIMARY KEY,
-            user_id VARCHAR(22)
-        );
-        '''
-        self.cursor.execute(query)
-        print('Rider Table Created')
-
     def create_trip_log_table(self):
         query = '''
-        CREATE TABLE trip_log(
-            trip_id VARCHAR(22) NOT NULL PRIMARY KEY,
-            driver_id VARCHAR(22),
-            rider_id VARCHAR(22),
-            pickup_address VARCHAR(50),
-            dropoff_address VARCHAR(50)
+        CREATE TABLE TRIPLOGS (
+            trip_id INT NOT NULL,
+            driver_id INT NOT NULL,
+            rider_id INT NOT NULL,
+            pickup_address VARCHAR(255) NOT NULL,
+            dropoff_address VARCHAR(255) NOT NULL,
+            CONSTRAINT driver_id FOREIGN KEY (driver_id) REFERENCES USER (user_id),
+            CONSTRAINT rider_id FOREIGN KEY (rider_id) REFERENCES USER (user_id)
         );
         '''
         self.cursor.execute(query)

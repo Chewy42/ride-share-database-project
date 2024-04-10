@@ -6,4 +6,4 @@
 ``` pip install -r requirements.txt ```
 
 3. Run the app
-``` python3 app.py ```
+``` python3 main.py ```
