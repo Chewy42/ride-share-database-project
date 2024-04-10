@@ -102,13 +102,6 @@ class Swift():
         print("----------------------------------------------")
     
     def menu(self, user_id):
-
-        # we need to know if they are a driver
-        # we need to know if the driver profile linked with their user id in the DRIVER table has driver_mode set to true
-        # there has to be an option to toggle the driver_mode to true or false
-        # if theyre driving they cant ride unless they toggle driver mode
-        # if they are a rider they cant drive unless they have a driver profile and toggle driver mode
-
         while True:
             has_driver_profile = self.check_if_driver_profile_exists(user_id)
             print("\n     What would you like to do?     ")
