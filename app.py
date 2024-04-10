@@ -60,10 +60,17 @@ class Swift():
             choice = helper.get_choice([1, 2, 3])
             if(choice == 1):
                 self.driver(user_id)
+                self.menu(user_id)
+                break
             elif(choice == 2):
                 self.menu(user_id)
+                break
             elif(choice == 3):
                 self.menu(user_id)
+                break
+            else:
+                self.menu(user_id)
+                break
 
     def existing_user(self):
         print("-----------------------")
